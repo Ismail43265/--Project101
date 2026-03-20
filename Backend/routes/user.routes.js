@@ -4,7 +4,7 @@ const {body}=require("express-validator");
 const userController=require("../controllers/userController")
 
 
-router.post('/register',[
+router.post('/signup',[
     body('fullname.firstname')
         .notEmpty().withMessage('First name must require')
         .isLength({min: 3}).withMessage('First name must be at least 3 characters'),
@@ -33,4 +33,26 @@ router.post('/register',[
     body('avatar')
         .optional()
         .isURL().withMessage('Avatar must be a valid URL')
-] ,userController.signup)
+] ,userController.signup);
+
+router.post('/login', [
+    body('email')
+        .notEmpty().withMessage("Fill the Email")
+        .isEmail().withMessage("Invalid Email"),
+    body('password')
+     .custom((value, {req})=>{
+        if(!req.body.googleId && !value){
+            throw new Error("Password is required if not using Google Id")
+        }
+        if(value && value.length < 6){
+            throw new Error("Password should be at least 6 leters");
+        }
+        return true;
+     }),
+     body('googleId')
+        .optional()
+        .isString().withMessage("Google id should be string")
+     
+], userController.login);
+
+module.exports=router
