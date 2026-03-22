@@ -2,6 +2,7 @@ const express=require("express");
 const router=express.Router();
 const {body}=require("express-validator");
 const userController=require("../controllers/userController")
+const authMiddleware=require("../middlewares/auth.middleware");
 
 
 router.post('/signup',[
@@ -54,5 +55,9 @@ router.post('/login', [
         .isString().withMessage("Google id should be string")
      
 ], userController.login);
+
+router.get('/profile', authMiddleware.authUser, userController.profile)
+
+router.post('/logout', authMiddleware.authUser, userController.logout)
 
 module.exports=router

@@ -2,6 +2,7 @@ const userModel=require("../models/user.model");
 const userService=require("../services/user.service");
 const {validationResult}=require("express-validator");
 const bcrypt = require("bcrypt");
+const blacklistTokenModel = require("../models/blacklistedToken.model");
 
 module.exports.signup= async (req,res,next)=>{
     try {
@@ -77,6 +78,10 @@ module.exports.login= async (req,res,next)=>{
             // ✅ SUCCESS RESPONSE (missing tha)
             const token = await user.generateAuthToken();
 
+            res.cookie("token", token, {
+                httpOnly: true
+            });
+
             return res.status(200).json({
                 token,
                 user
@@ -106,6 +111,10 @@ module.exports.login= async (req,res,next)=>{
 
         const token=await user.generateAuthToken();
 
+        res.cookie("token", token, {
+            httpOnly: true
+        });
+
         res.status(200).json({
             token, user
         });
@@ -115,4 +124,21 @@ module.exports.login= async (req,res,next)=>{
         next(error);
     }
     
+}
+
+
+module.exports.profile= async (req,res,next)=>{
+    return res.status(200).json(req.user)
+}
+
+module.exports.logout = async (req, res, next) => {
+
+    const token = req.cookies?.token || 
+    (req.headers.authorization && req.headers.authorization.split(" ")[1]);
+
+    res.clearCookie("token");
+
+    await blacklistTokenModel.create({ token });
+
+    res.status(200).json({ message: "Logged out" });
 }
