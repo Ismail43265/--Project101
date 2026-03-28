@@ -30,8 +30,10 @@ module.exports.signup= async (req,res,next)=>{
         }
 
         const user = await userService.createUser({
-            firstname: fullname.firstname,
-            lastname: fullname.lastname,
+            fullname: {
+                firstname: fullname.firstname,
+                lastname: fullname.lastname
+            },
             email,
             password: hashedPassword, 
             googleId,
@@ -40,7 +42,16 @@ module.exports.signup= async (req,res,next)=>{
 
         const token = await user.generateAuthToken();
 
-        res.status(201).json({token});
+        res.status(201).json({
+            token,
+            user: {
+                _id: user._id,
+                fullname: user.fullname,
+                email: user.email,
+                avatar: user.avatar,
+                friends: user.friends
+            }
+        });
 
     } catch (err) {
         next(err);
@@ -75,7 +86,7 @@ module.exports.login= async (req,res,next)=>{
                 });
             }
 
-            // ✅ SUCCESS RESPONSE (missing tha)
+            
             const token = await user.generateAuthToken();
 
             res.cookie("token", token, {
@@ -84,7 +95,13 @@ module.exports.login= async (req,res,next)=>{
 
             return res.status(200).json({
                 token,
-                user
+                user: {
+                    _id: user._id,
+                    fullname: user.fullname,
+                    email: user.email,
+                    avatar: user.avatar,
+                    friends: user.friends
+                }
             });
         }
         // 🔥 NORMAL LOGIN
@@ -116,7 +133,14 @@ module.exports.login= async (req,res,next)=>{
         });
 
         res.status(200).json({
-            token, user
+            token,
+            user: {
+                _id: user._id,
+                fullname: user.fullname,
+                email: user.email,
+                avatar: user.avatar,
+                friends: user.friends
+            }
         });
     }
     }
