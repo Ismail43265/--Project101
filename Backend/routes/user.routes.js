@@ -60,4 +60,12 @@ router.get('/profile', authMiddleware.authUser, userController.profile)
 
 router.post('/logout', authMiddleware.authUser, userController.logout)
 
+router.get('/search', authMiddleware.authUser, userController.userSearch)
+
+router.post('/send-request', authMiddleware.authUser, userController.friendRequest);
+
+router.post('/accept-request', authMiddleware.authUser, userController.acceptRequest);
+
+router.post('/friends', authMiddleware.authUser, userController.getFriends);
+
 module.exports=router

@@ -13,6 +13,7 @@ module.exports.signup= async (req,res,next)=>{
                 errors: errors.array()
             });
         }
+        
 
         const { fullname, email, password, googleId, avatar } = req.body;
 
@@ -41,6 +42,9 @@ module.exports.signup= async (req,res,next)=>{
         });
 
         const token = await user.generateAuthToken();
+         res.cookie("token", token, {
+                httpOnly: true
+            });
 
         res.status(201).json({
             token,
@@ -166,3 +170,108 @@ module.exports.logout = async (req, res, next) => {
 
     res.status(200).json({ message: "Logged out" });
 }
+
+module.exports.userSearch= async (req,res,next)=>{
+    try{
+        const {query}= req.query;
+
+        const users=await  userModel.findOne({
+            $or: [
+                {"fullname.firstname": {$regex: query, $options:"i"}},
+                {email: {$regex: query, $options:"i"}}
+            ],
+            _id: {$ne: req.user._id}
+        }).select("_id fullname email avatar");
+
+        res.status(200).json(users);
+    }
+    catch(err){
+        next(err);
+    }
+}
+
+module.exports.friendRequest= async (req,res,next)=>{
+    try{
+        const {toUserId}= req.body;
+
+        if(toUserId === req.user._id){
+            return res.status(400).json({
+                message:"You cant send request to Yourself"
+            });
+        }
+
+        const toUser=await userModel.findById(toUserId);
+        if(!toUser){
+            return res.status(400).json({
+                message: "User not found"
+            });
+        }
+
+        if(toUser.friendRequests.includes(req.user._id)){
+            return res.status(400).json({
+                message: "You are already a friend"
+            });
+        }
+
+       const alreadyRequested=toUser.friendRequests.some(
+        reqItem => reqItem.from.toString() === req.user._id.toString()
+       );
+
+       if(alreadyRequested){
+        return res.status(400).json({
+                message: "Friend reques already sent"
+            });
+       }
+       toUser.friendRequests.push({ from: req.user._id });
+
+        await toUser.save();
+
+        res.status(200).json({ message: "Friend request sent" });
+    }
+    catch(err){
+        next(err);
+    }
+}
+
+
+module.exports.acceptRequest = async (req, res, next) => {
+    try {
+        const { fromUserId } = req.body;
+
+        const user = await userModel.findById(req.user._id);
+        const fromUser = await userModel.findById(fromUserId);
+
+        if (!fromUser) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        // add to friends both side
+        user.friends.push(fromUserId);
+        fromUser.friends.push(req.user._id);
+
+        // remove request
+        user.friendRequests = user.friendRequests.filter(
+            reqItem => reqItem.from.toString() !== fromUserId
+        );
+
+        await user.save();
+        await fromUser.save();
+
+        res.status(200).json({ message: "Friend request accepted" });
+
+    } catch (err) {
+        next(err);
+    }
+};
+
+module.exports.getFriends = async (req, res, next) => {
+    try {
+        const user = await userModel.findById(req.user._id)
+            .populate("friends", "_id fullname email avatar");
+
+        res.status(200).json(user.friends);
+
+    } catch (err) {
+        next(err);
+    }
+};
