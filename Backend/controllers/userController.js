@@ -3,6 +3,9 @@ const userService=require("../services/user.service");
 const {validationResult}=require("express-validator");
 const bcrypt = require("bcrypt");
 const blacklistTokenModel = require("../models/blacklistedToken.model");
+const Notification= require("../models/Notification.model.js");
+const {getIO}= require("../Socket.cjs");
+
 
 module.exports.signup= async (req,res,next)=>{
     try {
@@ -171,30 +174,60 @@ module.exports.logout = async (req, res, next) => {
     res.status(200).json({ message: "Logged out" });
 }
 
-module.exports.userSearch= async (req,res,next)=>{
-    try{
-        const {query}= req.query;
+module.exports.userSearch = async (req, res, next) => {
+  try {
+    const { query } = req.query;
 
-        const users=await  userModel.findOne({
-            $or: [
-                {"fullname.firstname": {$regex: query, $options:"i"}},
-                {email: {$regex: query, $options:"i"}}
-            ],
-            _id: {$ne: req.user._id}
-        }).select("_id fullname email avatar");
+    const users = await userModel.find({
+      $or: [
+        { "fullname.firstname": { $regex: query, $options: "i" } },
+        { email: { $regex: query, $options: "i" } }
+      ],
+      _id: { $ne: req.user._id }
+    }).select("_id fullname email avatar friendRequests friends");
 
-        res.status(200).json(users);
-    }
-    catch(err){
-        next(err);
-    }
-}
+    const result = users.map((u) => {
+      let status = null;
+
+      // ✅ already friend
+      if (req.user.friends.some(f => f.toString() === u._id.toString())) {
+        status = "friend";
+      }
+
+      // ✅ YOU sent request
+      else if (
+        u.friendRequests.some(r => r.from.toString() === req.user._id.toString())
+      ) {
+        status = "pending";
+      }
+
+      // ✅ YOU received request
+      else if (
+        req.user.friendRequests.some(r => r.from.toString() === u._id.toString())
+      ) {
+        status = "received";
+      }
+
+      return {
+        _id: u._id,
+        fullname: u.fullname,
+        avatar: u.avatar,
+        status
+      };
+    });
+
+    res.status(200).json(result);
+
+  } catch (err) {
+    next(err);
+  }
+};
 
 module.exports.friendRequest= async (req,res,next)=>{
     try{
         const {toUserId}= req.body;
 
-        if(toUserId === req.user._id){
+        if(toUserId.toString() === req.user._id.toString()){
             return res.status(400).json({
                 message:"You cant send request to Yourself"
             });
@@ -207,9 +240,13 @@ module.exports.friendRequest= async (req,res,next)=>{
             });
         }
 
-        if(toUser.friendRequests.includes(req.user._id)){
+        const alreadyFriend = toUser.friends.some(
+            id => id.toString() === req.user._id.toString()
+            );
+
+        if (alreadyFriend) {
             return res.status(400).json({
-                message: "You are already a friend"
+            message: "Already friends"
             });
         }
 
@@ -222,13 +259,35 @@ module.exports.friendRequest= async (req,res,next)=>{
                 message: "Friend reques already sent"
             });
        }
+       const reverseRequest = req.user.friendRequests.some(
+            reqItem => reqItem.from.toString() === toUserId.toString()
+            );
+
+        if (reverseRequest) {
+            return res.status(400).json({
+                message: "User already sent you a request"
+            });
+        }
        toUser.friendRequests.push({ from: req.user._id });
 
         await toUser.save();
 
+        const io=getIO();
+
+        const notification= await Notification.create({
+            userId: toUserId,
+            type: "FRIEND_REQUEST",
+            message: `${req.user.fullname.firstname} sent you Friend request`
+        });
+
+        console.log("Notification created:", notification);
+
+        io.to(toUserId.toString()).emit("new_notification", notification)
+
         res.status(200).json({ message: "Friend request sent" });
     }
     catch(err){
+        console.error("NOTIFICATION ERROR:", err);
         next(err);
     }
 }
@@ -256,6 +315,16 @@ module.exports.acceptRequest = async (req, res, next) => {
 
         await user.save();
         await fromUser.save();
+
+        const io=getIO();
+
+        const notification= Notification.create({
+            userId: fromUserId,
+            type: "REQUEST_ACCEPTED",
+            message: `${req.user.fullname.firstname} Accepted your friend request`
+        })
+
+        io.to(fromUserId.toString()).emit("new_notification", notification);
 
         res.status(200).json({ message: "Friend request accepted" });
 
