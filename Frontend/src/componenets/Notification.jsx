@@ -2,11 +2,15 @@ import {useState, useRef, useEffect} from "react";
 import axios from "axios";
 import socket from "../socket"
 import bell from "../assets/icons/bell.png";
+import { useNavigate } from "react-router-dom";
+
 const API = import.meta.env.VITE_API_URL;
 
 const Notification=({user})=>{
     const [notifications, setNotifications] = useState([]);
     const [open, setOpen] = useState(false);
+
+    const navigate=useNavigate();
 
     const dropdownRef=useRef();
 
@@ -91,7 +95,7 @@ const Notification=({user})=>{
         <img
           src={bell}
           alt="notifications"
-          className="w-8 h-8 object-contain bg-red-500"
+          className="w-8 h-8 object-contain "
         />
 
         {/* 🔴 BADGE */}
@@ -109,8 +113,24 @@ const Notification=({user})=>{
           className="absolute right-0 mt-2 w-80 bg-white shadow-xl rounded-xl z-50"
         >
           {/* HEADER */}
-          <div className="p-3 border-b font-semibold text-black">
-            Notifications
+          <div className="p-3 border-b flex items-center justify-between text-black">
+
+            <span className="font-semibold">
+              Notifications
+            </span>
+
+            {/* 🔥 Friend Requests Button */}
+            <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                setOpen(false);
+                navigate("/friend-requests");
+              }}
+              className="flex items-center gap-1 text-sm bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600"
+            >
+              👥 Requests
+            </button>
+
           </div>
 
           {/* LIST */}

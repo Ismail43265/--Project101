@@ -4,6 +4,7 @@ import Home from "./pages/Home";
 import Login from "./pages/Login"
 import Signup from "./pages/Signup";
 import Dashboard from "./pages/Dashboard"
+import Friend_requests from "./pages/Friend-Requests";
 
 
 const App= ()=>{
@@ -14,6 +15,7 @@ const App= ()=>{
           <Route path="/login" element={<Login/>} />
           <Route path="/signup" element={<Signup/>} />
           <Route path="/dashboard" element={<Dashboard/>} />
+          <Route path="/friend-requests" element={<Friend_requests/>}/>
       </Routes>
     </div>
   )

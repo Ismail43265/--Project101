@@ -333,6 +333,48 @@ module.exports.acceptRequest = async (req, res, next) => {
     }
 };
 
+module.exports.rejectRequest = async (req,res,next)=>{
+    try{
+        const {fromUserId}=req.body;
+
+        const user= await userModel.findById(req.user._id);
+
+        const requestExist= user.friendRequests.some(
+            reqItem => reqItem.from.toString()==fromUserId
+        );
+
+        if(!requestExist){
+            return res.status(400).json({
+                message: "req does not exist"
+            });
+        }
+
+        user.friendRequests= user.friendRequests.filter(
+            reqItem => reqItem.from.toString()!==fromUserId
+        );
+
+        await user.save();
+
+        res.status(200).json({
+            message: "Friend request rejected"
+        });
+    }
+    catch(err){
+        next(err);
+    }
+}
+
+module.exports.getFriendRequests = async (req, res, next) => {
+    try {
+        const user = await userModel.findById(req.user._id)
+            .populate("friendRequests.from", "fullname avatar email");
+
+        res.status(200).json(user.friendRequests);
+    } catch (err) {
+        next(err);
+    }
+};
+
 module.exports.getFriends = async (req, res, next) => {
     try {
         const user = await userModel.findById(req.user._id)

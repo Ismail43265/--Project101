@@ -66,6 +66,10 @@ router.post('/send-request', authMiddleware.authUser, userController.friendReque
 
 router.post('/accept-request', authMiddleware.authUser, userController.acceptRequest);
 
+router.post('/reject-request' , authMiddleware.authUser, userController.rejectRequest);
+
+router.get('/friend-requests', authMiddleware.authUser, userController.getFriendRequests);
+
 router.post('/friends', authMiddleware.authUser, userController.getFriends);
 
 module.exports=router

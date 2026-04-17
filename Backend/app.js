@@ -1,11 +1,18 @@
 const express = require("express");
-const dotenv = require("dotenv");
+
 const connectToDb = require("./DB/db");
+
+// Api routes
 const userRoutes = require("./routes/user.routes");
+const notificationRoutes= require("./routes/notification.routes");
+const groupRoutes= require("./routes/group.routes");
+
+
+const dotenv = require("dotenv");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
+
 const app = express();
-const notificationRoutes= require("./routes/notification.routes");
 dotenv.config();
 
 app.use(cors({
@@ -25,6 +32,8 @@ app.get('/', (req,res)=>{
 app.use('/users', userRoutes);
 
 app.use("/api/notifications", notificationRoutes);
+
+app.use("/api/group",groupRoutes);
 
 
 
