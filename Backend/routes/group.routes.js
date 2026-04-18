@@ -15,4 +15,4 @@ router.post("/:id/member", userAuthentication.authUser, groupController.addMembe
 
 router.post("/:id/member/:userId", userAuthentication.authUser, groupController.removeMember);
 
-export default router;
+module.exports= router;

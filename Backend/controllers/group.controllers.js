@@ -4,7 +4,7 @@ const express= require("express");
 const groupService= require("../services/group.service");
 
 
-export const createGroup = async (req,res)=>{
+module.exports.createGroup = async (req,res)=>{
     try{
         const userId=req.user.id;
         const {name, members}=req.body;
@@ -21,7 +21,7 @@ export const createGroup = async (req,res)=>{
         });
     }
     catch(err){
-        res.json(400).json({
+        res.status(400).json({
             success: false,
             message: err.message,
         });
@@ -29,7 +29,7 @@ export const createGroup = async (req,res)=>{
 }
 
 
-export const getUserGroups= async (req, res)=>{
+module.exports.getUserGroups= async (req, res)=>{
     try{
         const userId= req.user.id;
 
@@ -47,3 +47,74 @@ export const getUserGroups= async (req, res)=>{
         });
     }
 };
+
+
+module.exports.getGroupDetail= async (req,res)=>{
+   try{
+    const userId= req.user.id;
+    const groupId= req.params.id;
+
+    const group = await groupService.getGroupDetailService(groupId, userId);
+
+    res.json({
+        success: true,
+        data: group,
+    });
+   }
+   catch(err){
+        res.status(403).json({
+            success: false,
+            data: err.message,
+        });
+   }
+}
+
+module.exports.addMember = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const groupId = req.params.id;
+    const { userId: newUserId } = req.body;
+
+    const group = await groupService.addMemberService(
+      groupId,
+      userId,
+      newUserId
+    );
+
+    res.json({
+      success: true,
+      data: group,
+    });
+  } catch (err) {
+    res.status(400).json({
+      success: false,
+      data: err.message,
+    });
+  }
+};
+
+module.exports.removeMember= async (req, res)=>{
+    try{
+        const userId= req.user.id;
+        const groupId= req.params.id;
+        const removeUserId= req.params.userId;
+
+        const group = await groupService.removeMemberService(
+            groupId,
+            userId,
+            removeUserId
+        );
+
+        res.json({
+            success: true,
+            data: group,
+        });
+
+    }
+    catch(err){
+        res.status(400).json({
+        success: false,
+        message: err.message,
+        });
+    }
+}
