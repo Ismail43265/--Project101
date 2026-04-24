@@ -1,19 +1,24 @@
 
 //imports from within
 const groupModel= require("../models/group.model");
+const mongoose= require("mongoose");
+
+require("../models/user.model");
 
 
 
-module.exports.createGroupService= async({name, members, userId})=>{
+module.exports.createGroupService= async({name, members, userId, description})=>{
     if(!name){
         throw new Error("Group name is required");
     }
+    console.log("MODEL:", groupModel);
 
     let uniqueMembers= [...new Set(members || [])];
 
-    if(!uniqueMembers.includes(userId)){
-        uniqueMembers.push(userId);
-    }
+    if (!uniqueMembers.map(String).includes(String(userId))) {
+    uniqueMembers.push(userId);
+  }
+
 
     const memberData= uniqueMembers.map((id)=>({
         user :id,
@@ -24,20 +29,27 @@ module.exports.createGroupService= async({name, members, userId})=>{
         name,
         admin: userId,
         members: memberData,
+        description: description || "",
     });
+    console.log("GROUP CREATED:", group);
 
     return group;
 }
 
-module.exports.getUserGroupsService= async (userId)=>{
-    const group= await groupModel.find({
-        "members.user": userId,
-    })
-    .populate("members.user", "name avatar")
-    .sort({updatedAt: -1});
+module.exports.getUserGroupsService = async (userId) => {
 
-    return group;
-}
+  if (!mongoose.Types.ObjectId.isValid(userId)) {
+    throw new Error("Invalid userId");
+  }
+
+  const group = await groupModel.find({
+    "members.user": new mongoose.Types.ObjectId(userId),
+  })
+  .populate("members.user", "name avatar")
+  .sort({ updatedAt: -1 });
+
+  return group;
+};
 
 module.exports.getGroupDetailService= async (groupId, userId)=>{
     const group= await groupModel.findById(groupId)

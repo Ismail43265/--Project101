@@ -4,29 +4,39 @@ const express= require("express");
 const groupService= require("../services/group.service");
 
 
-module.exports.createGroup = async (req,res)=>{
-    try{
-        const userId=req.user.id;
-        const {name, members}=req.body;
+module.exports.createGroup = async (req, res) => {
+  try {
+    console.log("BODY:", req.body);   // 🔥 debug
+    console.log("FILE:", req.file);   // 🔥 debug
 
-        const group= await groupService.createGroupService({
-            name,
-            members,
-            userId,
-        });
+    const name = req.body.name;
+    const description = req.body.description;
 
-        res.status(201).json({
-            success: true,
-            data: group
-        });
+    let members = [];
+    if (req.body.members) {
+      members = JSON.parse(req.body.members);
     }
-    catch(err){
-        res.status(400).json({
-            success: false,
-            message: err.message,
-        });
-    }
-}
+
+    const group = await groupService.createGroupService({
+      name,
+      members,
+      userId: req.user.id,
+      description,
+    });
+
+    res.status(201).json({
+      success: true,
+      data: group,
+    });
+
+  } catch (err) {
+    console.log("ERROR:", err);
+    res.status(400).json({
+      success: false,
+      message: err.message,
+    });
+  }
+};
 
 
 module.exports.getUserGroups= async (req, res)=>{
@@ -41,6 +51,7 @@ module.exports.getUserGroups= async (req, res)=>{
         });
     }
     catch(err){
+      console.error("FULL ERROR:", err);
         res.status(400).json({
             success: false,
             message: err.message

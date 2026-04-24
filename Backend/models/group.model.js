@@ -1,10 +1,10 @@
-import mongoose from "mongoose";
+const mongoose= require("mongoose");
 
 const groupMemberSchema= new mongoose.Schema({
 
     user:{
         type: mongoose.Schema.Types.ObjectId,
-        ref : "User",
+        ref : "user",
         required: true
     },
 
@@ -29,7 +29,7 @@ const groupSchema= new mongoose.Schema({
 
     admin:{
         type: mongoose.Schema.Types.ObjectId,
-        ref: "User",
+        ref: "user",
         required: true 
     },
 
@@ -64,4 +64,4 @@ const groupSchema= new mongoose.Schema({
 
 groupSchema.index({ "members.user": 1 });
 
-export default mongoose.model("Group", groupSchema);
+module.exports= mongoose.model("Group", groupSchema);
