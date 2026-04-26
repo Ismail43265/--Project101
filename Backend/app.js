@@ -7,6 +7,7 @@ const userRoutes = require("./routes/user.routes");
 const notificationRoutes= require("./routes/notification.routes");
 const groupRoutes= require("./routes/group.routes");
 const expenceRoutes= require("./routes/expence.routes");
+const settlementRoutes = require("./routes/settlements.routes");
 
 
 const dotenv = require("dotenv");
@@ -37,5 +38,7 @@ app.use("/api/notifications", notificationRoutes);
 app.use("/api/group",groupRoutes);
 
 app.use("/api/expence", expenceRoutes);
+
+app.use("/api/settlements", settlementRoutes);
 
 module.exports = app;
