@@ -5,27 +5,52 @@ const groupModel = require("../models/group.model");
 const settlementsModel = require("../models/settlement.model");
 
 module.exports.addExpence= async (data)=>{
-    const { amount, participants, paidBy }= data;
+    const {
+        amount,
+        participants,
+        paidBy,
+        groupId
+    } = data;
 
-    const splitAmount= amount / participants.length;
+    const numericAmount = Number(amount);
 
-    const splitDetails= participants.map(userId=>({
+    if (!numericAmount || numericAmount <= 0) {
+        throw new Error("Invalid Amount");
+    }
+
+    if (!participants || participants.length === 0) {
+        throw new Error("Participants required");
+    }
+
+    if (!participants.includes(paidBy)) {
+        throw new Error("paidBy must be in participants");
+    }
+
+    const splitAmount = Number(
+        (numericAmount / participants.length).toFixed(2)
+    );
+
+    const splitDetail = participants.map(userId => ({
         userId,
         amount: splitAmount,
     }));
 
-    const expence= await Expence.create({
-        ...data,
-        splitDetails
+    const expence = await expenceModel.create({
+        amount: numericAmount,
+        participants,
+        paidBy,
+        groupId,
+        splitDetail
     });
+
     return expence;
-}
+};
 
 module.exports.getGroupExpence= async (groupId)=>{
-    const expences= await groupModel.find({groupId})
-        .populate("paidBy" , "name avatar")
-        .populate("participants" , "name avatar")
-        .populate("splitDetails.userId" , "name avatar")
+    const expences= await expenceModel.find({groupId})
+        .populate("paidBy" , "fullname avatar")
+        .populate("participants" , "fullname avatar")
+        .populate("splitDetail.userId" , "fullname avatar")
         .sort({ createdAt: -1})
 
     return expences;

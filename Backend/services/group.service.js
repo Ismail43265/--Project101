@@ -53,7 +53,7 @@ module.exports.getUserGroupsService = async (userId) => {
 
 module.exports.getGroupDetailService= async (groupId, userId)=>{
     const group= await groupModel.findById(groupId)
-    .populate("members.user", "name avatar email");
+    .populate("members.user", "fullname avatar email");
 
     if(!group) throw new Error("Group not found");
 

@@ -11,7 +11,7 @@ const expenseSchema = new mongoose.Schema({
         required: true,
         ref:"user"
     },
-    amaount:{
+    amount:{
         type: Number,
         required: true
     },
@@ -29,7 +29,7 @@ const expenseSchema = new mongoose.Schema({
     paymentMethod:{
         type: String,
         enum: ["cash", "online"],
-        default: ""
+        default: "cash"
     },
     billImage:{
         type: String,
