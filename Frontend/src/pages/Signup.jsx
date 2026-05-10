@@ -132,6 +132,10 @@ const Signup=()=>{
                         Submit
                     </button>
 
+                    <h2
+                    className="text-blue-600 mt-2 ml-30" 
+                    onClick={()=> navigate("/login")}>login</h2>
+
                 </form>
 
             </div>

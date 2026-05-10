@@ -19,6 +19,8 @@ const GroupChat=()=>{
     const [expence , setExpence] = useState([]);
     const [open ,setOpen] =useState(false);
     const [currentUserId, setCurrentUserId]=useState(null);
+    const [total , setTotal]=useState();
+    const [mineSplit, setMineSplit]=useState();
 
     const user = JSON.parse(localStorage.getItem("user"));
     console.log(user);
@@ -42,8 +44,24 @@ const GroupChat=()=>{
                 withCredentials: true
             });
 
-            setExpence(res.data.data || []);
+            const sortedExpence = (res.data.data || []).sort(
+                (a, b) => new Date(a.createdAt) - new Date(b.createdAt)
+            );
+
+            setExpence(sortedExpence);
             setCurrentUserId(res.data.currentUserId);
+        }
+        catch(err){
+            console.log(err);
+        }
+    }
+    const calculateTotal= async ()=>{
+        try{
+            const totalAmount= expence.reduce((sum, item)=>{
+                return sum+Number(item.amount);
+            },0);
+
+            setTotal(totalAmount);
         }
         catch(err){
             console.log(err);
@@ -55,8 +73,36 @@ const GroupChat=()=>{
             fetchExpence();
         }
     }, [id]);
+
+    useEffect(() => {
+        calculateTotal();
+    }, [expence]);
     
-    console.log(expence);
+    const calculateSplit= async ()=>{
+        try{
+            let totalSplit=0;
+
+            expence.forEach((item)=>{
+                item.splitDetail?.forEach((split)=>{
+                    if(split?.userId?._id === currentUserId){
+                        if(item?.paidBy._id === currentUserId){
+                            totalSplit+=(item.amount-split.amount);
+                        }
+                        else{
+                            totalSplit -=split.amount;
+                        }
+                    }
+                })
+            })
+            setMineSplit(totalSplit);
+        }
+        catch(err){
+            console.log(err);
+        }
+    }
+    useEffect(()=>{
+        calculateSplit();
+    },[expence]);
 
     return(
         <div className="h-screen flex flex-col overflow-hidden">
@@ -65,7 +111,7 @@ const GroupChat=()=>{
             
             <div className="flex flex-1 overflow-hidden">
 
-                 <div className="w-64 bg-gray-100 p-4">
+                 <div className="hidden md:block w-64 bg-gray-100 p-4">
                     <div
                         onClick={() => navigate("/dashboard")}
                         className="flex items-center gap-2 cursor-pointer mb-4 hover:text-blue-500"
@@ -79,8 +125,27 @@ const GroupChat=()=>{
                 <div className="flex-1 flex flex-col">
 
                     {/* HEADER */}
-                    <div className="p-4 border-b font-semibold">
-                         {name}
+                    <div className="p-4 border-b flex items-center justify-between">
+                        
+                        <div className="flex items-center gap-3">
+                            <button 
+                            onClick={()=> navigate("/dashboard")}
+                            className="md:hidden text-2xl font-bold">
+                                ←
+                            </button>
+
+                            <h2 className="font-semibold text-lg truncate">{name}</h2>
+                        </div>
+
+                        <div className="text-right">
+                            <p className="text-sm color-gree-400 font-semibold">
+                                Total: ₹{total}
+                            </p>
+                             <p className="text-sm color-gree-400 font-semibold">
+                                Your: ₹{mineSplit}
+                            </p>
+
+                        </div>
                     </div>
 
                     {/* MESSAGES */}

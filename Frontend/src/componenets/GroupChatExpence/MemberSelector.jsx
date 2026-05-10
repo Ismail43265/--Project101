@@ -25,8 +25,11 @@ const MemberSelector =({selected , setSelected , id})=>{
 
     useEffect(() => {
     if (members.length > 0) {
-            const allUserIds = members.map(m => m.user._id);
-            setSelected(allUserIds);
+             const allUserIds = members
+            .filter((m) => m.user?._id)
+            .map((m) => m.user._id);
+
+        setSelected(allUserIds);
         }
     }, [members]);
 
@@ -43,8 +46,11 @@ const MemberSelector =({selected , setSelected , id})=>{
       {members.length === 0 ? (
         <p className="text-sm text-gray-400">No Members found</p>
       ) : (
-        members.map((m) => {
-          const userId = m.user._id;
+        members.map((m, index) => {
+
+        const userId = m.user?._id;
+
+        if (!userId) return null;
 
           return (
             <div

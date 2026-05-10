@@ -130,6 +130,10 @@ const Login=()=>{
                     onError={() => console.log("Google Login Failed")}
                 />
             </div>
+
+            <h2
+            className="text-blue-600  mt-2 ml-30" 
+            onClick={()=> navigate("/signup")}>signup</h2>
             </form>
        </div>
        </div>
