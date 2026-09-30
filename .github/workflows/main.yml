@@ -21,6 +21,11 @@ jobs:
         with:
           node-version: 20
 
+      - name: Check Node and npm versions
+        run: |
+          node -v
+          npm -v
+
       - name: Install backend dependencies
         working-directory: ./Backend
         run: npm ci
