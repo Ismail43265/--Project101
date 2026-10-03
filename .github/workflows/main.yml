@@ -32,7 +32,9 @@ jobs:
 
       - name: Install frontend dependencies
         working-directory: ./Frontend
-        run: npm install
+        run: |
+          npm install
+          npm install lightningcss-linux-x64-gnu@1.32.0 --no-save --force
           
       - name: Build frontend
         working-directory: ./Frontend
