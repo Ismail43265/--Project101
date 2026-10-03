@@ -19,7 +19,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
 
       - name: Check Node and npm versions
         run: |
@@ -32,9 +32,7 @@ jobs:
 
       - name: Install frontend dependencies
         working-directory: ./Frontend
-        run: |
-          rm -rf node_modules
-          npm install --include=optional
+        run: npm ci
 
       - name: Build frontend
         working-directory: ./Frontend
