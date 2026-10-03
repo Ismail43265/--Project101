@@ -35,6 +35,7 @@ jobs:
         run: |
           npm ci
           npm install @rolldown/binding-linux-x64-gnu@1.0.0-rc.15 --no-save --force
+          npm install lightningcss-linux-x64-gnu --no-save --force
           
       - name: Build frontend
         working-directory: ./Frontend
