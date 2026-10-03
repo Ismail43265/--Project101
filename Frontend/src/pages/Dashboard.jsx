@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useState } from "react";
 import axios from "axios";
-import Navbar from "../componenets/navbar";
+import Navbar from "../componenets/Navbar";
 import CreateGroupModal from "../componenets/Groups/createGroupModel";
 import GroupSection from "../componenets/Groups/GroupSection";
 
@@ -40,7 +40,7 @@ const Dashboard=()=>{
   useEffect(() => {
     fetchGroups();
   }, []);
-  console.log("GROUPS STATE:", groups);
+  //console.log("GROUPS STATE:", groups);
 
     return (
         <div className="min-h-screen bg-gray-100">

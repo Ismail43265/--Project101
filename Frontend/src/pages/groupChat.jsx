@@ -4,10 +4,11 @@ import { useNavigate } from "react-router-dom";
 
 
 import Header from "../componenets/Header";
-import Navbar from "../componenets/navbar";
+import Navbar from "../componenets/Navbar";
 import ExpenceAddModel from "../componenets/GroupChatExpence/ExpenceAddModel";
 import axios from "axios";
 import ExpenceCard from "../componenets/GroupChatExpence/ExpenceCard"
+import SideGrooupCards from "../componenets/GroupChatExpence/SideGroupsCards";
 
 const API= import.meta.env.VITE_API_URL;
 
@@ -17,6 +18,7 @@ const GroupChat=()=>{
 
     const [name, setName]= useState();
     const [expence , setExpence] = useState([]);
+    const [groups, setGroups]=useState([]);
     const [open ,setOpen] =useState(false);
     const [currentUserId, setCurrentUserId]=useState(null);
     const [total , setTotal]=useState();
@@ -67,6 +69,12 @@ const GroupChat=()=>{
             console.log(err);
         }
     }
+    const fetchGroups = async ()=>{
+        const res= await axios.get(`${API}/api/group`, {
+            withCredentials : true,
+        });
+        setGroups(res.data.data || []);
+    }
 
     useEffect(()=>{
         if(id){
@@ -77,6 +85,10 @@ const GroupChat=()=>{
     useEffect(() => {
         calculateTotal();
     }, [expence]);
+
+    useEffect(()=>{
+        fetchGroups();
+    }, []);
     
     const calculateSplit= async ()=>{
         try{
@@ -119,7 +131,13 @@ const GroupChat=()=>{
                         <span className="text-xl">←</span>
                         
                         <h2 className="font-semibold">Groups</h2>
+                        
                     </div>
+                    <div>
+                            {groups.map((g) => (
+                                <SideGrooupCards key={groups._id} g={g}/>
+                            ) )}
+                        </div>
                 </div>
 
                 <div className="flex-1 flex flex-col">

@@ -44,6 +44,10 @@ const ExpenceCard = ({expence , isMe}) =>{
 
                         </p>
 
+                        <p className="">
+                            {expence.discription}
+                        </p>
+
                          <p className={`
                             text-sm mt-1
                             ${

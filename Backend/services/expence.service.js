@@ -7,6 +7,7 @@ const settlementsModel = require("../models/settlement.model");
 module.exports.addExpence= async (data)=>{
     const {
         amount,
+        discription,
         participants,
         paidBy,
         groupId
@@ -37,6 +38,7 @@ module.exports.addExpence= async (data)=>{
 
     const expence = await expenceModel.create({
         amount: numericAmount,
+        discription,
         participants,
         paidBy,
         groupId,

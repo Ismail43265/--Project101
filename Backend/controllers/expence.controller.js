@@ -7,7 +7,7 @@ const groupModel = require("../models/group.model");
 module.exports.addExpence= async (req,res)=>{
    try {
 
-        const { groupId, participants, amount } = req.body;
+        const { groupId, participants, amount , discription} = req.body;
 
         const group = await groupModel.findById(groupId);
 
@@ -43,6 +43,7 @@ module.exports.addExpence= async (req,res)=>{
         // ✅ backend decides paidBy
         const expenseData = {
             amount,
+            discription,
             participants: participantsWithPayer,
             groupId,
             paidBy: req.user.id

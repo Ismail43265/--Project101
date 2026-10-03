@@ -5,6 +5,7 @@ import MemberSelector from "./MemberSelector";
 
 const ExpenceAddModel = ({isOpen , onClose , onCreated , id})=>{
     const [amount , setAmount] = useState("");
+    const [discription, setdiscription]= useState("");
     const [split, setSplit] = useState("");
     const [selectedMembers , setSelectedMembers] = useState([]);
     const [loading, setLoading] = useState(false);
@@ -19,6 +20,7 @@ const ExpenceAddModel = ({isOpen , onClose , onCreated , id})=>{
 
     const resetForm= ()=>{
         setAmount("");
+        setdiscription("");
         setSplit("");
     }
 
@@ -38,6 +40,7 @@ const ExpenceAddModel = ({isOpen , onClose , onCreated , id})=>{
 
             const expenceData= {
                 amount : Number(amount),
+                discription,
                 participants: selectedMembers,
                 groupId: id
             }
@@ -75,10 +78,20 @@ const ExpenceAddModel = ({isOpen , onClose , onCreated , id})=>{
                         onChange={(e)=> setAmount(e.target.value)}
                     />
 
+
                     <div className="flex justify-content">
                         <h2 className="ml-2"> split:</h2>
                         <h2 className="ml-2"> {split}</h2>
                     </div>
+                </div>
+
+                <div>
+                    <input 
+                        placeholder="dicription"
+                        className="w-full border p-2 rounded mb-2"
+                        value={discription}
+                        onChange={(e)=> setdiscription(e.target.value)}
+                    />
                 </div>
 
                 <div className="mb-2">
