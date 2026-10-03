@@ -33,13 +33,13 @@ jobs:
       - name: Install frontend dependencies
         working-directory: ./Frontend
         run: |
-          npm ci
-          npm install @rolldown/binding-linux-x64-gnu --no-save
+          rm -rf node_modules
+          npm install --include=optional
 
       - name: Build frontend
         working-directory: ./Frontend
         run: npm run build
-        
+
       - name: Build backend Docker image
         run: docker build -t money-country-backend ./Backend
 
