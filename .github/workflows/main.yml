@@ -32,8 +32,11 @@ jobs:
 
       - name: Install frontend dependencies
         working-directory: ./Frontend
-        run: npm ci
-
+        run: |
+          npm ci
+          npm install @rolldown/binding-linux-x64-gnu --no-save
+          npm install lightningcss-linux-x64-gnu --no-save
+          
       - name: Build frontend
         working-directory: ./Frontend
         run: npm run build
